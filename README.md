@@ -30,9 +30,90 @@ thay vào đó nó đi kèm với các thư viện chuyển đổi JSON như Gso
 	+ Dễ dàng tùy chỉnh, thêm bất kuf trình chuyển đổi nào như Gson, JackSon, Moshi, XML... Bạn cũng có thể thêm các interceptor và cache khác nhau.
 	+ Cung cấp các chức năng bổ sung như custom header, file uploads, downloads, mocking responses
 
+## Thực hành
+- Trong ví dụ này, tôi sẽ chỉ cách sử dụng Retrofit 2 để xử lý các yêu cầu mạng. GET các request từ Endpoint */answers* gắn vào base URL *https://api.stackexchange.com/2.2* 
+- Step 1: Add dependency
+
+	<img src="images/retrofit_library.png"/>
+
+- Step 2: Add permission *Internet*
+
+	<img src="images/permission_network.png"/>
+
+- Step 3: Create model - Tôi sẽ chỉ cho bạn cách phân tích JSON response thành Java Object một cách đơn giản.
+	+ Generate Model tự động: Bằng cách sử dụng tool: <a href="http://www.jsonschema2pojo.org/">jsonschema2pojo</a>
+	+ JSON sample:
+		
+		<img src="images/json_sample.png"/>
+
+	+ Map JSON Data to Java: copy và paste JSON response vào tool *jsonschema2pojo* chọn source type: JSON, anotation style có thể chọn Gson hoặc Moshi (Ở đây mình sẽ chọn Moshi)
+	+ Chọn Preview để xem kết quả generate:
+		
+		<img src="images/generate_object.png"/>
+
+	+ Nếu bạn đang sử dụng ngôn ngữ Java bạn có thể copy nó vào project, còn ở project mình đang sử dụng Kotlin nên mình sẽ chỉnh sửa đi một chút
+
+	+ Note: @Json là của Moshi tương đương với @SerializedName của Gson
+
+- Step 4: Create Retrofit Instance
+	+ BASE_URL = "https://spring-boot-wall-tags.herokuapp.com/adsharingspace/"
+
+	<img src="images/retrofit_instance.png"/>
+
+- Step 5: Create API Interface
+
+	<img src="images/apiservice.png"/>
+	
+	+ Tất cả các method phải có HTTP annotation cung cấp request và quan hệ URL: GET, POST, PUT, DELETE, HEAD
+
+	+ Method Paramsters:
+		+ @Body: Gửi các đối tượng Java dưới dạng Request
+		+ @Query: Sử dụng với tham số truy vấn.
+		+ @FormUrlEncoded kết hợp với @Field để gửi dữ liệu đã mã hóa
+		+ @Headers: Add headers cho request. Nếu Header cần cho tất cả các request thì ta nên OkHttp Interceptor.
+
+- Step 6: Gửi request
+
+	<img src="images/send_request.png"/>
+
+	+ *Call<T>*: có thể thực thi đồng bộ hoặc không đồng bộ. Mỗi instance chỉ được gọi một lần, nhưng nếu gọi clone() sẽ tạo ra một instance mới có thể sử dụng. Trong Android, các callback sẽ được thực thi trên Main thread.
+
+## Cấu hình Retrofit 2 trong Android.
+- Việc thiết lập Retrofit 2 chạy trong Android là khá dễ dàng, nhưng đôi khi nó trở nên khó khăn hơn khi bạn làm việc cùng với *Authorisation Headers, Basic Authentication & SSL*.
+- Logging Interceptor
+	+ Tính năng log để hiển thị thông tin request và response trong quá trình phát triển và debug.
+	+ Vì việc ghi nhật ký không được tích hợp sẵn trong Retrofit 2 nữa, chúng ta cần thêm một *logging interceptor* cho OkHttp sử dụng interceptor.
+	+ Nên add logging vào cuối interceptor, bởi vì điều này cũng sẽ ghi lại thông tin mà bạn đã thêm vào interceptor trước đó.
+
+	<img src="images/logging_header.png"/>
+
+	+ Log levels: NONE, BASIC, HEADERS, BODY
+		+ NONE: Bỏ qua mọi hoạt động log.
+		+ BASIC: Log request type, url, size request body, response status và size response body.
+			
+			<img src="images/log_basic.png"/>
+
+		+ HEADERS: Log request, response headers, request type, url, response status
+
+			<img src="images/log_header.png"/>
+
+		+ BODY: Log request, response headers, body
+
+			<img src="images/log_body.png"/>
+
+- Authorization Header:
+	+ Khi request cần Header ta có thể add vào request, chúng ta có thể thêm vào method hoặc sử dụng OkHttp Interceptor.
+
+	<img src="images/logging_header.png"/>
+
+- SSL Configuration
+	+ Mặc định, Retrofit không thể kết nối với API được bảo vệ bởi SSL.
+	+ Để thêm chứng chỉ SSL vào Retroofit 2 client:
+		+ 
+
 # Tài liệu tham khảo
 - OkHttp: https://square.github.io/okhttp/
 - https://medium.com/@sotti/android-networking-ii-okhttp-retrofit-moshi-and-picasso-c381f6c0efd8
 - https://medium.com/@ssaurel/use-okhttp-to-make-network-requests-on-android-d3845e3c3f50
-- https://medium.com/@ssaurel/use-okhttp-to-make-network-requests-on-android-d3845e3c3f50
+- https://square.github.io/retrofit/
 - https://medium.com/mindorks/tagged/retrofit
