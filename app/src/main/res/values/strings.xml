@@ -2,5 +2,6 @@
     <string name="app_name">OkHttp_Retrofit</string>
     <string name="demo_okhttp">Demo OkHttp</string>
     <string name="demo_retrofit">Demo Retrofit</string>
+    <string name="demo_retrofit_mvvm">Demo Retrofit MVVM</string>
     <string name="btn_request_data">Request Data</string>
 </resources>

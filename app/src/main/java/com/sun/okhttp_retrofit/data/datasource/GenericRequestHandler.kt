@@ -8,7 +8,7 @@ import retrofit2.Response
 
 abstract class GenericRequestHandler<R> {
 
-    protected abstract fun makeRequest(): Call<R>
+    abstract fun makeRequest(): Call<R>
 
     fun doRequest(): LiveData<DataWrapper<R>> {
         val liveData = MutableLiveData<DataWrapper<R>>()

@@ -19,6 +19,10 @@ bộ đệm thay đổi kích thước. Vì thế OkHttp phụ thuộc vào Okio
 
 ## Thực hành
 
+## Interceptor
+
+## Cách Android OkHttp cache làm việc
+
 # Retrofit
 ## Overview
 - Retrofit là một type-safe HTTP client cho Java và Android được phát triển bởi Square, giúp dễ dàng kết nối đến một dịch vụ REST trên web bằng cách chuyển đổi API thành Java Interface.
@@ -117,7 +121,50 @@ thay vào đó nó đi kèm với các thư viện chuyển đổi JSON như Gso
 	+ Nếu không có *exception* trong onFailure()
 	+ Kiểm tra View nếu như có exception không đúng với dữ liệu của mình.
 - Vì thế, trừu tượng hóa toàn bộ quá trình request callback là một giải pháp tốt. Let go:
-- Đầu tiên, Custom lại CallBack<T> để xử lý lỗi:
+### API Concerns
+- Đầu tiên, Custom lại CallBack<T> để xử lý error, success, exceptions
+
+	<img src="images/custom_callback.png"/>
+
+- Tạo model dùng chung cho tất cả kiểu dữ liệu:
+
+	<img src="images/class_generic.png"/>
+
+- Tạo class GenericRequestHandler để xử lý logic, thường sử dụng cho các request tới API.
+
+	<img src="images/GenericRequestHandler.png"/>
+
+- Tạo class extends *GenericRequestHandler* để cung cấp một makeRequest() và thực hiện request.
+
+	<img src="images/login_interactor.png"/>
+
+### View Concerns
+- Custom Observer để trả về *exception* hoặc *success*
+
+	<img src="images/observer_custom.png"/>
+
+- Quan sát khi dữ liệu thay đổi:
+
+	<img src="images/observe_data.png"/>
+
+## Retrofit với Repository Pattern
+- Repository Pattern là một mẫu thiết kế phổ biến, nó tuân theo các nguyên tắc vững chắc dễ sử dụng và code sạch sẽ. 
+	+ Tách biệt việc xử lý ở Data Layer và Business Layer
+	+ Tách biệt rõ ràng Local Data Source và Remote DataSource
+	+ Tránh tình trạng lặp code
+	+ Dễ dàng viết Unit Test, giảm rủi ro maintain
+
+- Tạo interface DataSource khai báo các method lấy dữ liệu:
+
+	<img src="images/user_datasource.png"/>
+
+- Tạo RemoteDataSource để định nghĩa các phương thức lấy dữ liệu ở Remote:
+
+	<img src="images/user_remote_datasource.png"/>
+
+- Tạo class Repository để lấy dữ liệu:
+
+	<img src="images/user_repository.png"/>
 
 # Tài liệu tham khảo
 - OkHttp: https://square.github.io/okhttp/

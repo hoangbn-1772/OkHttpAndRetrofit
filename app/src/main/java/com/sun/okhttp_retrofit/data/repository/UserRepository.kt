@@ -6,7 +6,6 @@ import com.sun.okhttp_retrofit.data.model.UserWrapper
 import com.sun.okhttp_retrofit.data.remote.UserRemoteDataSource
 import retrofit2.Call
 
-class UserRepository(private val userRemoteDataSource: UserRemoteDataSource) : UserDataSource.Remote {
-
-    override fun login(account: Account): Call<UserWrapper> = userRemoteDataSource.login(account)
+class UserRepository(private val userDataSource: UserDataSource) : UserDataSource {
+    override fun login(account: Account): Call<UserWrapper> = userDataSource.login(account)
 }

@@ -1,11 +1,13 @@
 package com.sun.okhttp_retrofit.ui.retrofit
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.sun.okhttp_retrofit.R
 import com.sun.okhttp_retrofit.data.datasource.ApiObserver
+import com.sun.okhttp_retrofit.data.model.User
 import com.sun.okhttp_retrofit.data.model.UserWrapper
 import com.sun.okhttp_retrofit.ui.retrofit.login.LoginViewModel
 import kotlinx.android.synthetic.main.activity_retrofit.*
@@ -36,7 +38,7 @@ class RetrofitActivity : AppCompatActivity(), View.OnClickListener {
             this,
             ApiObserver(object : ApiObserver.ChangeListener<UserWrapper> {
                 override fun onSuccess(dataWrapper: UserWrapper) {
-                    Log.d("TAG", dataWrapper.message)
+                    setupUserProfile(dataWrapper.data)
                 }
 
                 override fun onException(exception: Exception) {
@@ -44,5 +46,11 @@ class RetrofitActivity : AppCompatActivity(), View.OnClickListener {
                 }
             })
         )
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun setupUserProfile(user: User?) {
+        text_id.text = user?.id.toString()
+        text_name.text = "${user?.firstName} ${user?.lastName}"
     }
 }

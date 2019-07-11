@@ -6,7 +6,7 @@ import retrofit2.Call
 
 interface UserDataSource {
 
-    interface Remote {
+
         fun login(account: Account): Call<UserWrapper>
-    }
+
 }

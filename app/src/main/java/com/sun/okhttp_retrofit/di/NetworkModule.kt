@@ -1,10 +1,6 @@
 package com.sun.okhttp_retrofit.di
 
-import android.app.Application
-import android.content.Context
-import com.sun.okhttp_retrofit.R
 import com.sun.okhttp_retrofit.data.datasource.ApiService
-import com.sun.okhttp_retrofit.ui.MainApplication
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.logging.HttpLoggingInterceptor
@@ -12,11 +8,11 @@ import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.security.KeyStore
-import java.security.cert.Certificate
-import java.security.cert.CertificateException
-import java.security.cert.CertificateFactory
-import javax.net.ssl.SSLContext
+import java.security.KeyStoreException
+import java.security.NoSuchAlgorithmException
+import javax.net.ssl.SSLSocketFactory
 import javax.net.ssl.TrustManagerFactory
+import javax.net.ssl.X509TrustManager
 
 
 val networkModule = module {
@@ -35,7 +31,6 @@ private fun createApiService(): ApiService {
     logging.level = HttpLoggingInterceptor.Level.BASIC
 
 
-
     val client = OkHttpClient.Builder()
         .addInterceptor {
             val original: Request = it.request()
@@ -47,6 +42,12 @@ private fun createApiService(): ApiService {
         }
         .addInterceptor(logging)
 
+    getX509TrustManager()?.let {
+        SSLSocketFactory.getDefault()?.let { sf ->
+            client.sslSocketFactory(sf as SSLSocketFactory, it)
+        }
+    }
+
     val retrofit = Retrofit.Builder()
         .client(client.build())
         .baseUrl(BASE_URL)
@@ -55,27 +56,23 @@ private fun createApiService(): ApiService {
     return retrofit.create(ApiService::class.java)
 }
 
-private fun getSSLConfig(context: Context): SSLContext {
-    var sslContext: SSLContext? = null
+private fun getX509TrustManager(): X509TrustManager? {
     try {
-        val cf = CertificateFactory.getInstance("X.509")
-        var ca: Certificate? = null
-        context.resources.openRawResource(R.raw.abc).use { cert -> ca = cf.generateCertificate(cert) }
-
-        val keyStoreType = KeyStore.getDefaultType()
-        val keyStore: KeyStore = KeyStore.getInstance(keyStoreType)
-        keyStore.load(null, null)
-        keyStore.setCertificateEntry("ca", ca)
-
-        val tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm()
-        val tmf = TrustManagerFactory.getInstance(tmfAlgorithm)
-        tmf.init(keyStore)
-
-        sslContext = SSLContext.getInstance("TLS")
-        sslContext.init(null, tmf.trustManagers, null)
-    }catch (e:CertificateException){
-        e.printStackTrace()
+        val trustManagerFactory = TrustManagerFactory
+            .getInstance(TrustManagerFactory.getDefaultAlgorithm())
+        trustManagerFactory.init(null as KeyStore?)
+        val trustManagers = trustManagerFactory.trustManagers
+        if (trustManagers.size == 1 && trustManagers[0] is X509TrustManager) {
+            return trustManagers[0] as X509TrustManager
+        } else {
+            return null
+        }
+    } catch (e: NoSuchAlgorithmException) {
+//        LOG.error("Error while retrieving X509 trust manager!", e)
+        return null
+    } catch (e: KeyStoreException) {
+//        LOG.error("Error while retrieving X509 trust manager!", e)
+        return null
     }
 
-    return sslContext!!
 }

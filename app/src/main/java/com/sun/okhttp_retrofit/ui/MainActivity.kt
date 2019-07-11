@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import com.sun.okhttp_retrofit.R
 import com.sun.okhttp_retrofit.R.layout
+import com.sun.okhttp_retrofit.ui.okhttp.OkHttpActivity
 import com.sun.okhttp_retrofit.ui.retrofit.RetrofitActivity
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -20,6 +21,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.btn_demo_retrofit -> move(RetrofitActivity::class.java)
+            R.id.btn_demo_okhttp -> move(OkHttpActivity::class.java)
         }
     }
 
