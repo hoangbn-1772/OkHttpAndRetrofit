@@ -109,7 +109,15 @@ thay vào đó nó đi kèm với các thư viện chuyển đổi JSON như Gso
 - SSL Configuration
 	+ Mặc định, Retrofit không thể kết nối với API được bảo vệ bởi SSL.
 	+ Để thêm chứng chỉ SSL vào Retroofit 2 client:
-		+ 
+		
+
+## Retrofit with LiveData
+- Với kiến trúc MVVM, MVP, chúng ta thường muốn View tương tác với kho dữ liệu thông qua ViewModel để cập nhật dữ liệu mới nhất. Vấn đề xảy ra là phải thực hiện gần như một số kiểm tra mỗi lần nhận được response từ server ví dụ như là:
+	+ *response.body* không null
+	+ Nếu không có *exception* trong onFailure()
+	+ Kiểm tra View nếu như có exception không đúng với dữ liệu của mình.
+- Vì thế, trừu tượng hóa toàn bộ quá trình request callback là một giải pháp tốt. Let go:
+- Đầu tiên, Custom lại CallBack<T> để xử lý lỗi:
 
 # Tài liệu tham khảo
 - OkHttp: https://square.github.io/okhttp/

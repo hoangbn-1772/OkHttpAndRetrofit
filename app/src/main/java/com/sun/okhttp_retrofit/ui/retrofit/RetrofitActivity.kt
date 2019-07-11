@@ -5,18 +5,15 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.sun.okhttp_retrofit.R
-import com.sun.okhttp_retrofit.data.model.Account
+import com.sun.okhttp_retrofit.data.datasource.ApiObserver
 import com.sun.okhttp_retrofit.data.model.UserWrapper
-import com.sun.okhttp_retrofit.data.repository.UserRepository
+import com.sun.okhttp_retrofit.ui.retrofit.login.LoginViewModel
 import kotlinx.android.synthetic.main.activity_retrofit.*
-import org.koin.android.ext.android.inject
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class RetrofitActivity : AppCompatActivity(), View.OnClickListener {
 
-    private val repository: UserRepository by inject()
+    private val viewModel: LoginViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,17 +32,17 @@ class RetrofitActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun getDataFromWebService() {
-
-        repository.login(Account("123", "hoang123"))
-            .enqueue(object : Callback<UserWrapper> {
-                override fun onFailure(call: Call<UserWrapper>, t: Throwable) {
-                    Log.d("TAG", t.message)
-                    call.clone()
+        viewModel.getDataFromWebService().observe(
+            this,
+            ApiObserver(object : ApiObserver.ChangeListener<UserWrapper> {
+                override fun onSuccess(dataWrapper: UserWrapper) {
+                    Log.d("TAG", dataWrapper.message)
                 }
 
-                override fun onResponse(call: Call<UserWrapper>, response: Response<UserWrapper>) {
-                    Log.d("TAG", response.body()?.message)
+                override fun onException(exception: Exception) {
+                    // Handle exception
                 }
             })
+        )
     }
 }
