@@ -6,7 +6,5 @@ import retrofit2.Call
 
 interface UserDataSource {
 
-
-        fun login(account: Account): Call<UserWrapper>
-
+    fun login(account: Account): Call<UserWrapper>
 }

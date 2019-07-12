@@ -1,9 +1,14 @@
 package com.sun.okhttp_retrofit.di
 
+import android.content.Context
 import com.sun.okhttp_retrofit.data.datasource.ApiService
-import okhttp3.OkHttpClient
-import okhttp3.Request
+import com.sun.okhttp_retrofit.utils.GzipRequestInterceptor
+import com.sun.okhttp_retrofit.utils.LoggingInterceptor
+import com.sun.okhttp_retrofit.utils.NetworkUtils
+import com.sun.okhttp_retrofit.utils.ResponseInterceptor
+import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
+import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -16,7 +21,7 @@ import javax.net.ssl.X509TrustManager
 
 
 val networkModule = module {
-    single { createApiService() }
+    single { createApiService(androidContext()) }
 }
 
 private const val BASE_URL = "https://spring-boot-wall-tags.herokuapp.com/adsharingspace/"
@@ -25,11 +30,12 @@ const val CONTENT_TYPE = "Content-Type"
 
 const val VALUE = "application/json"
 
-private fun createApiService(): ApiService {
+private fun createApiService(context: Context): ApiService {
 
     val logging = HttpLoggingInterceptor()
     logging.level = HttpLoggingInterceptor.Level.BASIC
 
+    val cacheSize = 10 * 1024 * 1024
 
     val client = OkHttpClient.Builder()
         .addInterceptor {
@@ -41,6 +47,11 @@ private fun createApiService(): ApiService {
             return@addInterceptor it.proceed(request)
         }
         .addInterceptor(logging)
+        .addInterceptor(ForceCacheInterceptor())
+        .addInterceptor(LoggingInterceptor())
+        .addInterceptor(ResponseInterceptor())
+//        .addInterceptor(GzipRequestInterceptor())
+        .cache(Cache(context.cacheDir, cacheSize.toLong()))
 
     getX509TrustManager()?.let {
         SSLSocketFactory.getDefault()?.let { sf ->
@@ -68,11 +79,24 @@ private fun getX509TrustManager(): X509TrustManager? {
             return null
         }
     } catch (e: NoSuchAlgorithmException) {
-//        LOG.error("Error while retrieving X509 trust manager!", e)
+        e.printStackTrace()
         return null
     } catch (e: KeyStoreException) {
-//        LOG.error("Error while retrieving X509 trust manager!", e)
+        e.printStackTrace()
         return null
     }
-
 }
+
+
+class ForceCacheInterceptor : Interceptor {
+
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val builder = chain.request().newBuilder()
+
+        if (!NetworkUtils.internetAvailable()) {
+            builder.cacheControl(CacheControl.FORCE_CACHE)
+        }
+        return chain.proceed(builder.build())
+    }
+}
+

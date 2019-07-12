@@ -9,7 +9,7 @@ import com.sun.okhttp_retrofit.data.repository.UserRepository
 class LoginViewModel(private val repository: UserRepository) : ViewModel(){
 
     fun getDataFromWebService(): LiveData<DataWrapper<UserWrapper>> {
-        val login = LoginInteractor("string", "string", repository)
+        val login = LoginInteractor("123", "hoang123", repository)
 
         return login.doRequest()
     }

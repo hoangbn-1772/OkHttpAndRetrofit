@@ -38,6 +38,7 @@ class RetrofitActivity : AppCompatActivity(), View.OnClickListener {
             this,
             ApiObserver(object : ApiObserver.ChangeListener<UserWrapper> {
                 override fun onSuccess(dataWrapper: UserWrapper) {
+                    Log.d("TAG", dataWrapper.message)
                     setupUserProfile(dataWrapper.data)
                 }
 

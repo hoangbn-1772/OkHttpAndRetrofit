@@ -20,8 +20,81 @@ bộ đệm thay đổi kích thước. Vì thế OkHttp phụ thuộc vào Okio
 ## Thực hành
 
 ## Interceptor
+- Interceptor là một cơ chế mạnh mẽ có thể giám sát, điều chỉnh và có thể chặn các request và response. Thông thường sử dụng để thêm, xóa, sửa các Headers trên request hoặc response trả về.
+
+<img src="images/interceptor_schema.png"/>
+
+- Interceptor được chia làm 2 loại:
+	+ Application Interceptor:
+		+ Đây là những interceptor có cấp độ cao được sử dụng để tác động tới các request hoặc response.
+		+ Thường được sử dụng để viết lại các Header/query ở cả request và response.
+		+ Được gọi ngay cả khi response được nạp thì cache.
+		+ Được phép short-circuit và không gọi Chain.proceed()
+		+ Được phép retry và nhiều call đến Chain.procees()
+	+ Network Interceptor:
+		+ Đây là những interceptor có cấp độ thấp được sử dụng để theo dõi các request và response
+		+ Nó rất hữu ích để theo dõi việc redirect, retry.
+		+ Nó không được gọi nếu response không được lưu trữ.
+- Ví dụ: Interceptor đơn giản để ghi lại request và responce
+
+<img src="images/LoggingInterceptor"/>
+
+	+ *chain.proceed(request)* là một phần quan trọng trong việc thực hiện của Interceptor, đây là nơi tất cả các công việc HTTP xảy ra, tạo response đáp ứng request.
+
+	+ Kết quả:
+
+	<img src="images/result_interceptor.png"/>
+
+- Rewriting Requests: Interceptor có thể add, remove, replace request Header.
+
+	<img src="images/rewrite_request.png"/>
+
+- Rewriting Response: Có thể viết lại response header, response body.
+
+	<img src="images/rewrite_response.png"/>
 
 ## Cách Android OkHttp cache làm việc
+- Việc fetch một thứ gì đó qua mạng vừa chậm, vừa tốn kém, các response lớn đòi hỏi nhiều thời gian giữa client và server. Do đó, khả năng lưu trữ và sử dụng lại các tài nguyên đã tải trước đó là một vấn đề quan trọng trong việc cải thiện hiệu suất, tăng trải nghiệm cho người dùng.
+- Cơ chế OkHttp caching:
+
+	<img src="images/okhttp_caching_mechanism.png"/>
+
+- Enable cache:
+
+	<img src="images/enable_cache.png"/>
+
+- Làm thế nào để nó hoạt động?
+	+ Không phải làm cả, nó sẽ tự động phân tích cú pháp header liên quan đến bộ đệm từ server và lưu trữ response vào cache dir. Lần tới, khi gửi request nó sẽ tự động thêm header tương ứng.
+
+	+ Khi server trả về response, nó cũng bao gồm một tập hợp các HTTP headers, content-type, lenght, caching directives, validation token,...okhttp_caching_mechanism.png
+
+	<img src="images/caching_response.png"/>
+
+	+ Ví dụ trên: kích thước response là 1024 byte, client lưu trữ vào cache trong 120s, validate token *x234dff*
+
+- Làm thế nào để nó hoạt động offline?
+	+ Khi server cung cấp max-age, nó báo cho OkHttp rằng có thể lưu trữ response và sử dụng ngoại tuyến.
+	+ Nếu max-age không có sẵn hoặc hết hạn nhưng bạn vẫn muốn sử dụng dữ liệu cục bộ, bạn có thể làm như sau:
+		
+		<img src="images/cache_offline.png"/>
+
+	+ Flow:
+
+		<img src="images/flow_offline.png"/>
+
+	+ Tổng quát hơn, nếu bạn luôn muốn sử dụng local cache bất cứ khi nào không có Internet:
+
+		<img src="images/force_cache_interceptor.png">
+
+- Cách server quyết định client có thể sử dụng dữ liệu được lưu trữ trong cache:
+	+ Client sẽ gửi một thứ gì đó như timestamp hoặc Etag của request cuối cùng
+	+ Server sẽ check xem dữ liệu có thay đổi gì trong thời gian đó hay không.
+	+ Nếu không có gì thay đổi, server chỉ trả về mã *304 Not Modified* thông báo rằng response có trong cache không thay đổi và được gia hạn thêm thời gian max-age.
+
+		<img src="images/validate_cached.png"/>
+
+- Có nên sử dụng OkHttp để lưu trữ dữ liệu không? Chỉ cần sử dụng *FORCE_CACHE* là đã có dữ liệu được lưu trữ?
+	+ Đây là một ý tưởng tồi, Dữ liệu nên luôn phải có sẵn trong khi đó cache có thể có hoặc không. Ví dụ: login token nên được lưu trữ, trong khi dữ liệu mới nên được lưu vào cache.
 
 # Retrofit
 ## Overview
