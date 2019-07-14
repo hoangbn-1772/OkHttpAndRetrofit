@@ -37,12 +37,11 @@ bộ đệm thay đổi kích thước. Vì thế OkHttp phụ thuộc vào Okio
 		+ Nó không được gọi nếu response không được lưu trữ.
 - Ví dụ: Interceptor đơn giản để ghi lại request và responce
 
-<img src="images/LoggingInterceptor"/>
+<img src="images/logging_interceptor.png"/>
 
 	+ *chain.proceed(request)* là một phần quan trọng trong việc thực hiện của Interceptor, đây là nơi tất cả các công việc HTTP xảy ra, tạo response đáp ứng request.
 
 	+ Kết quả:
-
 	<img src="images/result_interceptor.png"/>
 
 - Rewriting Requests: Interceptor có thể add, remove, replace request Header.
