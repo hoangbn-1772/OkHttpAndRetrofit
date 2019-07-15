@@ -107,7 +107,7 @@ thay vào đó nó đi kèm với các thư viện chuyển đổi JSON như Gso
 	+ Cung cấp các chức năng bổ sung như custom header, file uploads, downloads, mocking responses
 
 ## Thực hành
-- Trong ví dụ này, tôi sẽ chỉ cách sử dụng Retrofit 2 để xử lý các yêu cầu mạng. GET các request từ Endpoint */answers* gắn vào base URL *https://api.stackexchange.com/2.2* 
+- Trong ví dụ này, tôi sẽ chỉ cách sử dụng Retrofit 2 để xử lý các yêu cầu mạng. GET các request từ Endpoint */answers* gắn vào base URL *http://spring-boot-wall-tags.herokuapp.com/adsharingspace/swagger-ui.html#!* 
 - Step 1: Add dependency
 
 	<img src="images/retrofit_library.png"/>
