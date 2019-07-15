@@ -98,12 +98,13 @@ bộ đệm thay đổi kích thước. Vì thế OkHttp phụ thuộc vào Okio
 # Retrofit
 ## Overview
 - Retrofit là một type-safe HTTP client cho Java và Android được phát triển bởi Square, giúp dễ dàng kết nối đến một dịch vụ REST trên web bằng cách chuyển đổi API thành Java Interface.
-- Từ Retrofit 2 tích hợp thêm phụ thuộc vào OkHttp, phụ thuộc vào Okio. Có nghĩa khi sử dụng Retrofit là bạn đang sử dụng OkHttp và Okio. Ngoài ra không tích hợp bất kỳ bộ chuyển đổi JSON nào để phân tích từ JSON thành Java Object,
-thay vào đó nó đi kèm với các thư viện chuyển đổi JSON như Gson, Jackson, Moshi.
-- Điểm mạnh:
+- Sử dụng Retrofit chúng ta có thể dễ dàng chuyển đổi REST APIs thành Java Interfaces.
+- Từ Retrofit sử dụng OkHttp để thực hiện các HTTP request, phụ thuộc vào Okio. Có nghĩa khi sử dụng Retrofit là bạn đang sử dụng OkHttp và Okio. Ngoài ra không tích hợp bất kỳ bộ chuyển đổi JSON or XML nào để phân tích từ JSON thành Java Object,thay vào đó nó đi kèm với các thư viện chuyển đổi JSON như Gson, Jackson, Moshi.
+- Ưu điểm:
+	+ Dễ dàng sử dụng, cho phép bạn gọi các cuộc gọi API như các cuộc gọi phương thức Java đơn giản.
 	+ Dễ dàng kết nối với web-services bằng cách chuyển đổi API sang Java hoặc Kotlin
 	+ Dễ dàng add Headers và request type
-	+ Dễ dàng tùy chỉnh, thêm bất kuf trình chuyển đổi nào như Gson, JackSon, Moshi, XML... Bạn cũng có thể thêm các interceptor và cache khác nhau.
+	+ Dễ dàng tùy chỉnh, thêm bất kỳ trình chuyển đổi nào như Gson, JackSon, Moshi, XML... Bạn cũng có thể thêm các interceptor và cache khác nhau.
 	+ Cung cấp các chức năng bổ sung như custom header, file uploads, downloads, mocking responses
 
 ## Thực hành
@@ -237,6 +238,34 @@ thay vào đó nó đi kèm với các thư viện chuyển đổi JSON như Gso
 - Tạo class Repository để lấy dữ liệu:
 
 	<img src="images/user_repository.png"/>
+
+## Share OkHttp Client and Converters between Retrofit Instances
+- Nếu bạn có nhiều Retrofit instance mà không chú ý bạn sẽ làm giảm performance của app. Vì vậy việc xây dựng một single Retrofit instance sử dụng cho mỗi API với URL khác nhau là một giải pháp tốt.
+### Vấn đề của Multiple Retrofit Instances
+
+<img src="images/issue_multiple_retrofit_instance.png"/>
+
+- Ví dụ trên, một OkHttp instance mới cho mỗi Retrofit instance. Điều này dẫn đến ít nhất 2 case OkHttp riêng biệt, mỗi case giữ nhóm request riêng, disk cache, routing logic,... App của bạn sẽ mất hiệu suất một cách không cần thiết.
+
+#### Solution 1: Sharing Default OkHttp Instance
+
+<img src="images/share_default_okhttp.png"/>
+
+- Ví dụ trên minh họa việc share một OkHttp instance.
+
+#### Solution 2: Sharing Modified OkHttp Instances
+
+<img src="images/share_modified_okhttp.png">
+
+- Với cách này, chúng ta có thể tùy chỉnh từng OkHttp client theo mong muốn, bao gồm cả interceptor nhưng vẫn sử dụng lại 1 OkHttpClient
+
+### Converters
+
+<img src="images/converter_issue.png"/>
+
+- Với ví dụ trên, chúng ta đang tạo hai case Gson bằng cách gọi riêng GsonConverterFactory.create(). Điều đó có nghĩa 2 case sẽ không chia sẻ bất kỳ bộ đệm nào với nhau. Thay vào đó chúng ta nên chuyển cùng một instance Gson cho 2 Retrofit instance
+
+<img src="images/converters_solve.png"/>
 
 # Tài liệu tham khảo
 - OkHttp: https://square.github.io/okhttp/
