@@ -68,7 +68,7 @@ bộ đệm thay đổi kích thước. Vì thế OkHttp phụ thuộc vào Okio
 - Làm thế nào để nó hoạt động?
 	+ Không phải làm cả, nó sẽ tự động phân tích cú pháp header liên quan đến bộ đệm từ server và lưu trữ response vào cache dir. Lần tới, khi gửi request nó sẽ tự động thêm header tương ứng.
 
-	+ Khi server trả về response, nó cũng bao gồm một tập hợp các HTTP headers, content-type, lenght, caching directives, validation token,...okhttp_caching_mechanism.png
+	+ Khi server trả về response, nó cũng bao gồm một tập hợp các HTTP headers, content-type, lenght, caching directives, validation token,...
 
 	<img src="images/caching_response.png"/>
 
@@ -188,7 +188,10 @@ bộ đệm thay đổi kích thước. Vì thế OkHttp phụ thuộc vào Okio
 - SSL Configuration
 	+ Mặc định, Retrofit không thể kết nối với API được bảo vệ bởi SSL.
 	+ Để thêm chứng chỉ SSL vào Retroofit 2 client:
+
+	<img src="images/x509.png"/>
 		
+	<img src="images/config_ssl.png"/>
 
 ## Retrofit with LiveData
 - Với kiến trúc MVVM, chúng ta thường muốn View tương tác với kho dữ liệu thông qua ViewModel để cập nhật dữ liệu mới nhất. Vấn đề xảy ra là phải thực hiện gần như một số kiểm tra mỗi lần nhận được response từ server ví dụ như là:

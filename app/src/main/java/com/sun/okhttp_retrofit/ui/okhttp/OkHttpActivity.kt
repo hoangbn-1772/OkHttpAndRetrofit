@@ -6,9 +6,11 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import com.sun.okhttp_retrofit.R
+import com.sun.okhttp_retrofit.data.model.Account
+import com.sun.okhttp_retrofit.utils.LoggingInterceptor
 import kotlinx.android.synthetic.main.activity_ok_http.*
-import okhttp3.OkHttpClient
-import okhttp3.Request
+import okhttp3.*
+import org.json.JSONObject
 import java.lang.Exception
 
 class OkHttpActivity : AppCompatActivity(), View.OnClickListener {
@@ -35,21 +37,37 @@ class OkHttpActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     companion object {
-        private const val URL = "https://raw.github.com/square/okhttp/master/README.md"
+
+        private val JSON = MediaType.parse("application/json; charset=utf-8")
+
+        private const val BASE_URL = "https://spring-boot-wall-tags.herokuapp.com/adsharingspace/"
+
+        private const val LOGIN = "auth/login"
 
         class OkHttpHandler : AsyncTask<String, Void, String>() {
 
-            private val client = OkHttpClient()
+            private val client = OkHttpClient.Builder()
+                .addInterceptor(LoggingInterceptor())
+                .build()
 
             override fun doInBackground(vararg params: String?): String {
+                val acc = Account("123", "hoang123")
+                val jsonObject = JSONObject().put("String", acc)
+                val requestBody = RequestBody.create(JSON, jsonObject.toString())
+
                 val request = Request.Builder()
-                    .url(URL)
-                    .header("Content-Type", "application/json")
+                    .url(BASE_URL + LOGIN)
+//                    .header("Content-Type", "application/json")
+//                    .method("POST",requestBody)
+                    .post(requestBody)
                     .build()
 
                 try {
+                    // synchronous
                     val response = client.newCall(request).execute()
+                    Log.d("TAG", response.code().toString())
                     return response.body().toString()
+                    // Asynchronous call enqueue
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
@@ -59,12 +77,11 @@ class OkHttpActivity : AppCompatActivity(), View.OnClickListener {
 
             override fun onPostExecute(result: String?) {
                 super.onPostExecute(result)
-                Log.d("TAG", result.toString())
             }
         }
     }
 
-    interface Callback{
+    interface Callback {
         fun getDate(data: String)
     }
 }
