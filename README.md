@@ -28,7 +28,7 @@ bộ đệm thay đổi kích thước. Vì thế OkHttp phụ thuộc vào Okio
 	+ Application Interceptor:
 		+ Đây là những interceptor có cấp độ cao được sử dụng để tác động tới các request hoặc response.
 		+ Thường được sử dụng để viết lại các Header/query ở cả request và response.
-		+ Được gọi ngay cả khi response được nạp thì cache.
+		+ Được gọi ngay cả khi response được nạp t cache.
 		+ Được phép short-circuit và không gọi Chain.proceed()
 		+ Được phép retry và nhiều call đến Chain.procees()
 	+ Network Interceptor:
