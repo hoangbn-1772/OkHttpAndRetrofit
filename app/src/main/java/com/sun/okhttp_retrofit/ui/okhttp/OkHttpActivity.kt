@@ -39,7 +39,7 @@ class OkHttpActivity : AppCompatActivity(), View.OnClickListener {
 
         class OkHttpHandler : AsyncTask<String, Void, String>() {
 
-            val client = OkHttpClient()
+            private val client = OkHttpClient()
 
             override fun doInBackground(vararg params: String?): String {
                 val request = Request.Builder()

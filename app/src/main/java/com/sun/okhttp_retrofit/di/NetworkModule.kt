@@ -49,9 +49,10 @@ private fun createApiService(context: Context): ApiService {
         .addInterceptor(logging)
         .addInterceptor(ForceCacheInterceptor())
         .addInterceptor(LoggingInterceptor())
-        .addInterceptor(ResponseInterceptor())
+//        .addInterceptor(ResponseInterceptor())
 //        .addInterceptor(GzipRequestInterceptor())
         .cache(Cache(context.cacheDir, cacheSize.toLong()))
+        .addInterceptor(REWRITE_CACHE_CONTROL_INTERCEPTOR)
 
     getX509TrustManager()?.let {
         SSLSocketFactory.getDefault()?.let { sf ->
@@ -100,3 +101,19 @@ class ForceCacheInterceptor : Interceptor {
     }
 }
 
+// Use cache data when offline
+private val REWRITE_CACHE_CONTROL_INTERCEPTOR = Interceptor { chain ->
+    val originalResponse = chain.proceed(chain.request())
+
+    if (NetworkUtils.internetAvailable()) {
+        val maxAge = 60 // Read from cache for 1 minute
+        return@Interceptor originalResponse.newBuilder()
+            .header("Cache-Control", "public, max-age=$maxAge")
+            .build()
+    } else {
+        val maxStale = 60 * 60 * 24 * 28
+        return@Interceptor originalResponse.newBuilder()
+            .header("Cache-Control", "public, only-if-cached, max-stale=$maxStale")
+            .build()
+    }
+}

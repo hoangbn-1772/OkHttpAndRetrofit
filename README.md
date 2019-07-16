@@ -3,9 +3,9 @@
 # OkHttp
 ## Overview
 - Là một thư viện được Square phát triển với mục đích gửi và nhận các request mạng dựa trên HTTP.
-- Là một máy khách HTTP nahnh, hiệu quả:
-	+ Hỗ trợ HTTP/2 cho phép tất cả các request đến cùng một máy chủ để chia sẻ một socket.
-	+ Gộp connection giảm độ trễ request
+- Là một HTTP client nhanh, hiệu quả:
+	+ Hỗ trợ HTTP/2 và SPDY cho phép tất cả các request đến cùng một máy chủ để chia sẻ một socket.
+	+ Nhóm connection giảm độ trễ request
 	+ GZIP: Giảm kích thước tải xuống.
 	+ Caching
 	+ Khôi phục từ các sự cố mạng
@@ -19,6 +19,8 @@ bộ đệm thay đổi kích thước. Vì thế OkHttp phụ thuộc vào Okio
 
 ## Thực hành
 
+<img src="images/demo_okhttp.png"/>
+
 ## Interceptor
 - Interceptor là một cơ chế mạnh mẽ có thể giám sát, điều chỉnh và có thể chặn các request và response. Thông thường sử dụng để thêm, xóa, sửa các Headers trên request hoặc response trả về.
 
@@ -28,7 +30,7 @@ bộ đệm thay đổi kích thước. Vì thế OkHttp phụ thuộc vào Okio
 	+ Application Interceptor:
 		+ Đây là những interceptor có cấp độ cao được sử dụng để tác động tới các request hoặc response.
 		+ Thường được sử dụng để viết lại các Header/query ở cả request và response.
-		+ Được gọi ngay cả khi response được nạp t cache.
+		+ Được gọi ngay cả khi response được nạp từ cache.
 		+ Được phép short-circuit và không gọi Chain.proceed()
 		+ Được phép retry và nhiều call đến Chain.procees()
 	+ Network Interceptor:
@@ -39,9 +41,10 @@ bộ đệm thay đổi kích thước. Vì thế OkHttp phụ thuộc vào Okio
 
 <img src="images/logging_interceptor.png"/>
 
-	+ *chain.proceed(request)* là một phần quan trọng trong việc thực hiện của Interceptor, đây là nơi tất cả các công việc HTTP xảy ra, tạo response đáp ứng request.
+- *chain.proceed(request)* là một phần quan trọng trong việc thực hiện của Interceptor, đây là nơi tất cả các công việc HTTP xảy ra, tạo response đáp ứng request.
 
-	+ Kết quả:
+- Kết quả:
+
 	<img src="images/result_interceptor.png"/>
 
 - Rewriting Requests: Interceptor có thể add, remove, replace request Header.
@@ -98,7 +101,6 @@ bộ đệm thay đổi kích thước. Vì thế OkHttp phụ thuộc vào Okio
 # Retrofit
 ## Overview
 - Retrofit là một type-safe HTTP client cho Java và Android được phát triển bởi Square, giúp dễ dàng kết nối đến một dịch vụ REST trên web bằng cách chuyển đổi API thành Java Interface.
-- Sử dụng Retrofit chúng ta có thể dễ dàng chuyển đổi REST APIs thành Java Interfaces.
 - Từ Retrofit sử dụng OkHttp để thực hiện các HTTP request, phụ thuộc vào Okio. Có nghĩa khi sử dụng Retrofit là bạn đang sử dụng OkHttp và Okio. Ngoài ra không tích hợp bất kỳ bộ chuyển đổi JSON or XML nào để phân tích từ JSON thành Java Object,thay vào đó nó đi kèm với các thư viện chuyển đổi JSON như Gson, Jackson, Moshi.
 - Ưu điểm:
 	+ Dễ dàng sử dụng, cho phép bạn gọi các cuộc gọi API như các cuộc gọi phương thức Java đơn giản.
@@ -189,7 +191,7 @@ bộ đệm thay đổi kích thước. Vì thế OkHttp phụ thuộc vào Okio
 		
 
 ## Retrofit with LiveData
-- Với kiến trúc MVVM, MVP, chúng ta thường muốn View tương tác với kho dữ liệu thông qua ViewModel để cập nhật dữ liệu mới nhất. Vấn đề xảy ra là phải thực hiện gần như một số kiểm tra mỗi lần nhận được response từ server ví dụ như là:
+- Với kiến trúc MVVM, chúng ta thường muốn View tương tác với kho dữ liệu thông qua ViewModel để cập nhật dữ liệu mới nhất. Vấn đề xảy ra là phải thực hiện gần như một số kiểm tra mỗi lần nhận được response từ server ví dụ như là:
 	+ *response.body* không null
 	+ Nếu không có *exception* trong onFailure()
 	+ Kiểm tra View nếu như có exception không đúng với dữ liệu của mình.
